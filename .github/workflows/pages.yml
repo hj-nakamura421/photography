@@ -27,6 +27,8 @@ jobs:
       - uses: actions/configure-pages@v5
       - run: pnpm install --frozen-lockfile
       - run: pnpm run build
+      - name: Place interface assets at the GitHub Pages project root
+        run: cp -R dist/client/photography/_next dist/client/_next
       - run: touch dist/client/.nojekyll
       - uses: actions/upload-pages-artifact@v4
         with:

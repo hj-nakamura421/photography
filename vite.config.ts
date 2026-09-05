@@ -10,6 +10,5 @@ export default defineConfig(() => ({
     server: isCodexSeatbeltSandbox
       ? { watch: { useFsEvents: false, usePolling: true } }
       : undefined,
-    base: '/photography/',
     plugins: [vinext()],
 }));

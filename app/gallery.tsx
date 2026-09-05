@@ -1,11 +1,11 @@
 'use client';
 
-import { useMemo, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex } from '@/lib/gallery-collection.mjs';
+import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex, shufflePhotographs } from '@/lib/gallery-collection.mjs';
 import photographs from './archive.json';
 
 const BASE_PATH = '/photography';
@@ -26,7 +26,30 @@ const categories = [
 type Category = typeof categories[number];
 type Colour = 'all' | 'colour' | 'monochrome';
 type Format = 'all' | 'portrait' | 'landscape';
-type Photograph = typeof photographs[number];
+type Photograph = {
+  id: string;
+  number: number;
+  title: string;
+  alt: string;
+  width: number;
+  height: number;
+  monochrome: boolean;
+  date: string | null;
+  selected: boolean;
+  featured: number;
+  category: string;
+};
+
+const archive = photographs as Photograph[];
+const knownLocations: Record<string, string> = {
+  'e79d193cefe02a4f-0681': 'Edinburgh, Scotland',
+  '84f333e658cf8ece-0803': 'Edinburgh, Scotland',
+};
+
+function captureDate(value: string | null) {
+  if (!value) return 'Not recorded';
+  return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
+}
 
 export default function Gallery() {
   const [category, setCategory] = useState<Category>('All work');
@@ -37,13 +60,16 @@ export default function Gallery() {
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
+  const [orderedPhotographs, setOrderedPhotographs] = useState<Photograph[]>(archive);
   const heading = useRef<HTMLHeadingElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
-  const filtered = useMemo(() => filterPhotographs(photographs, colour, format, category), [category, colour, format]);
+  useEffect(() => {
+    setOrderedPhotographs(shufflePhotographs(archive));
+  }, []);
+  const filtered = useMemo(() => filterPhotographs(orderedPhotographs, colour, format, category), [orderedPhotographs, category, colour, format]);
   const pages = pageCountFor(filtered.length);
   const shown = photographPage(filtered, page);
   const current = filtered[index] ?? filtered[0];
-  const featured = category === 'All work' && colour === 'all' && format === 'all' && page === 0;
   const fullSource = (photo: Photograph) => BASE_PATH + '/photos/' + photo.id + '.jpg';
   const move = (direction: number) => {
     setLoaded(false);
@@ -62,9 +88,9 @@ export default function Gallery() {
     setImageFailed(false);
   }
 
-  function photoCard(photo: Photograph, position: number, isFeatured = false) {
+  function photoCard(photo: Photograph, position: number) {
     const absoluteIndex = page * PAGE_SIZE + position;
-    return <figure className={'photograph' + (isFeatured ? ' featured-' + position : '')} key={photo.id}>
+    return <figure className="photograph" key={photo.id}>
       <DialogTrigger
         render={<Button variant="ghost" className="photo-button" />}
         onClick={() => { setIndex(absoluteIndex); setLoaded(false); setImageFailed(false); }}
@@ -110,10 +136,7 @@ export default function Gallery() {
       <p className="gallery-count" aria-live="polite">{filtered.length ? (page * PAGE_SIZE + 1).toLocaleString('en-GB') + '–' + Math.min((page + 1) * PAGE_SIZE, filtered.length).toLocaleString('en-GB') : '0'} of {filtered.length.toLocaleString('en-GB')} photographs</p>
       {pagination('top')}
     </div>
-    {shown.length ? featured ? <>
-      <div className="featured-grid">{shown.slice(0, 3).map((photo, position) => photoCard(photo, position, true))}</div>
-      <div className="collection-grid">{shown.slice(3).map((photo, position) => photoCard(photo, position + 3))}</div>
-    </> : <div className="collection-grid filtered-grid">{shown.map((photo, position) => photoCard(photo, position))}</div> :
+    {shown.length ? <div className="collection-grid filtered-grid">{shown.map((photo, position) => photoCard(photo, position))}</div> :
       <div className="archive-empty"><p>No photographs match these filters.</p><Button variant="outline" onClick={() => { setColour('all'); setFormat('all'); resetCollection(); }}>Show all photographs</Button></div>}
     <div className="gallery-end archive-end">
       {pagination('bottom')}
@@ -123,21 +146,43 @@ export default function Gallery() {
       if (event.key === 'ArrowRight') { event.preventDefault(); move(1); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); move(-1); }
     }}>
-      <div className="viewer-header"><span>Hinata Justin Nakamura</span><DialogClose render={<Button variant="ghost" className="viewer-button" />} aria-label="Close photograph"><X size={22} /></DialogClose></div>
-      <div className="viewer-image" onTouchStart={event => { if (event.touches.length === 1) touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; else touchStart.current = null; }} onTouchEnd={event => {
-        if (!touchStart.current || !event.changedTouches[0]) return;
-        const dx = event.changedTouches[0].clientX - touchStart.current.x;
-        const dy = event.changedTouches[0].clientY - touchStart.current.y;
-        if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3) move(dx < 0 ? 1 : -1);
-        touchStart.current = null;
-      }}>
-        {open && <img key={current.id} src={fullSource(current)} alt={current.alt} width={current.width} height={current.height} onLoad={() => setLoaded(true)} onError={() => { setImageFailed(true); setLoaded(true); }} />}
-        {open && !loaded && <span className="viewer-loading" role="status">Loading photograph…</span>}
-        {imageFailed && <span className="viewer-loading" role="alert">This photo couldn’t load. Try opening the full-size image below.</span>}
+      <div className="viewer-header">
+        <span className="viewer-brand">Hinata Justin Nakamura</span>
+        <span className="viewer-position">{index + 1} / {filtered.length.toLocaleString('en-GB')}</span>
+        <DialogClose render={<Button variant="ghost" className="viewer-button viewer-close" />} aria-label="Close photograph"><X size={22} /></DialogClose>
       </div>
-      <div className="viewer-footer">
-        <div className="viewer-caption" aria-live="polite"><DialogTitle>{current.title}</DialogTitle><DialogDescription>{current.category} · {current.monochrome ? 'Black & white' : 'Colour'} · {current.width.toLocaleString('en-GB')} × {current.height.toLocaleString('en-GB')} px <span className="viewer-hint">— Arrow keys or swipe to explore</span></DialogDescription><a className="original-link" href={fullSource(current)} target="_blank" rel="noreferrer">Open full-size image <ArrowUpRight size={12} /></a></div>
-        <div className="viewer-navigation"><Button variant="ghost" className="viewer-button" onClick={() => move(-1)} aria-label="Previous photograph"><ArrowLeft size={22} /></Button><span aria-label={'Photograph ' + (index + 1) + ' of ' + filtered.length}>{index + 1} / {filtered.length.toLocaleString('en-GB')}</span><Button variant="ghost" className="viewer-button" onClick={() => move(1)} aria-label="Next photograph"><ArrowRight size={22} /></Button></div>
+      <div className="viewer-body">
+        <div className="viewer-stage">
+          <Button variant="ghost" className="viewer-button viewer-step viewer-previous" onClick={() => move(-1)} aria-label="Previous photograph"><ArrowLeft size={24} /></Button>
+          <div className="viewer-image" onTouchStart={event => { if (event.touches.length === 1) touchStart.current = { x: event.touches[0].clientX, y: event.touches[0].clientY }; else touchStart.current = null; }} onTouchEnd={event => {
+            if (!touchStart.current || !event.changedTouches[0]) return;
+            const dx = event.changedTouches[0].clientX - touchStart.current.x;
+            const dy = event.changedTouches[0].clientY - touchStart.current.y;
+            if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3) move(dx < 0 ? 1 : -1);
+            touchStart.current = null;
+          }}>
+            {open && <img key={current.id} src={fullSource(current)} alt={current.alt} width={current.width} height={current.height} onLoad={() => setLoaded(true)} onError={() => { setImageFailed(true); setLoaded(true); }} />}
+            {open && !loaded && <span className="viewer-loading" role="status">Loading photograph…</span>}
+            {imageFailed && <span className="viewer-loading" role="alert">This photograph couldn’t load. Try the original file below.</span>}
+          </div>
+          <Button variant="ghost" className="viewer-button viewer-step viewer-next" onClick={() => move(1)} aria-label="Next photograph"><ArrowRight size={24} /></Button>
+        </div>
+        <aside className="viewer-panel" aria-live="polite">
+          <div className="viewer-caption">
+            <DialogTitle>{current.title}</DialogTitle>
+            <DialogDescription>{current.alt}</DialogDescription>
+          </div>
+          <dl className="viewer-metadata">
+            <div><dt>Taken</dt><dd>{captureDate(current.date)}</dd></div>
+            <div><dt>Location</dt><dd>{knownLocations[current.id] ?? 'Not recorded'}</dd></div>
+            <div><dt>Collection</dt><dd>{current.category}</dd></div>
+            <div><dt>Format</dt><dd>{current.monochrome ? 'Black & white' : 'Colour'} · {current.width >= current.height ? 'Landscape' : 'Portrait'}</dd></div>
+          </dl>
+          <div className="viewer-panel-footer">
+            <a className="original-link" href={fullSource(current)} target="_blank" rel="noreferrer">Open original <ArrowUpRight size={12} /></a>
+            <span>Use arrow keys or swipe to explore</span>
+          </div>
+        </aside>
       </div>
     </DialogContent>}
   </Dialog>;

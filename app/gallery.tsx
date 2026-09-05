@@ -41,10 +41,7 @@ type Photograph = {
 };
 
 const archive = photographs as Photograph[];
-const knownLocations: Record<string, string> = {
-  'e79d193cefe02a4f-0681': 'Edinburgh, Scotland',
-  '84f333e658cf8ece-0803': 'Edinburgh, Scotland',
-};
+const knownLocations: Record<string, string> = {};
 
 function captureDate(value: string | null) {
   if (!value) return 'Not recorded';

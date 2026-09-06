@@ -21,13 +21,13 @@ type Photograph = {
   height: number;
   monochrome: boolean;
   date: string | null;
+  location: string | null;
   selected: boolean;
   featured: number;
   category: string;
 };
 
 const archive = photographs as Photograph[];
-const knownLocations: Record<string, string> = {};
 
 function captureDate(value: string | null) {
   if (!value) return 'Not recorded';
@@ -161,7 +161,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
           </div>
           <dl className="viewer-metadata">
             <div><dt>Taken</dt><dd>{captureDate(current.date)}</dd></div>
-            <div><dt>Location</dt><dd>{knownLocations[current.id] ?? 'Not recorded'}</dd></div>
+            <div><dt>Location</dt><dd>{current.location ?? 'Not recorded'}</dd></div>
             <div><dt>Collection</dt><dd>{current.category}</dd></div>
             <div><dt>Format</dt><dd>{current.monochrome ? 'Black & white' : 'Colour'} · {current.width >= current.height ? 'Landscape' : 'Portrait'}</dd></div>
           </dl>

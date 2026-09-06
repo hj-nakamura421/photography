@@ -81,12 +81,12 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
       <DialogTrigger
         render={<Button variant="ghost" className="photo-button" />}
         onClick={() => { setIndex(absoluteIndex); setLoaded(false); setImageFailed(false); }}
-        aria-label={'View ' + photo.title + ' full screen'}
+        aria-label={photo.title ? 'View ' + photo.title + ' full screen' : 'View school photograph full screen'}
       >
         <img src={BASE_PATH + '/archive/' + photo.id + '-thumb.webp'} alt={photo.alt} width={photo.width} height={photo.height} loading={position < 3 ? 'eager' : 'lazy'} fetchPriority={position === 0 ? 'high' : 'auto'} decoding="async" />
         <span className="photo-open" aria-hidden="true"><Maximize2 size={16} /></span>
       </DialogTrigger>
-      <figcaption><span>{photo.title}</span><span>{photo.category}</span></figcaption>
+      {photo.category !== 'School' && <figcaption><span>{photo.title}</span><span>{photo.category}</span></figcaption>}
     </figure>;
   }
 
@@ -156,7 +156,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
         </div>
         <aside className="viewer-panel" aria-live="polite">
           <div className="viewer-caption">
-            <DialogTitle>{current.title}</DialogTitle>
+            <DialogTitle className={current.title ? undefined : 'sr-only'}>{current.title || 'School photograph'}</DialogTitle>
             <DialogDescription>{current.alt}</DialogDescription>
           </div>
           <dl className="viewer-metadata">

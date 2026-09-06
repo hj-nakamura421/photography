@@ -7,7 +7,7 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
   title: 'About / Contact — Hinata Justin Nakamura',
   description: 'About and contact details for photographer Hinata Justin Nakamura.',
-  alternates: { canonical: 'https://hj-nakamura421.github.io/photography/about/' },
+  alternates: { canonical: 'https://hj-nakamura421.github.io/photography/about' },
 };
 
 export default function About() {
@@ -15,7 +15,7 @@ export default function About() {
     <div className="site-shell about-shell">
       <header className="site-header">
         <a href="/photography/" className="wordmark" aria-label="Hinata Justin Nakamura home"><h1>Hinata Justin Nakamura</h1></a>
-        <nav aria-label="Main navigation"><a href="/photography/">Photographs</a><a href="/photography/about/" aria-current="page">About</a><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={12} /></a></nav>
+        <nav aria-label="Main navigation"><a href="/photography/">Photographs</a><a href="/photography/about" aria-current="page">About</a><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={12} /></a></nav>
       </header>
       <main className="about-main">
         <section className="about-section" aria-labelledby="about-title">
@@ -26,7 +26,7 @@ export default function About() {
           </div>
         </section>
       </main>
-      <footer><span>© 2026 Hinata Justin Nakamura</span><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={11} /></a><a href="/photography/">Photographs</a></footer>
+      <footer><span>© 2026 Hinata Justin Nakamura. All rights reserved.</span><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={11} /></a><a href="/photography/">Photographs</a></footer>
     </div>
   );
 }

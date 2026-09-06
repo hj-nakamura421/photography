@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   keywords: ['Hinata Justin Nakamura', 'photographer', 'street photography', 'landscape photography', 'documentary photography', 'London', 'Edinburgh', 'Tokyo'],
   authors: [{ name: 'Hinata Justin Nakamura', url: canonical }],
   creator: 'Hinata Justin Nakamura',
+  other: { copyright: '© 2026 Hinata Justin Nakamura. All rights reserved.' },
   alternates: { canonical },
   robots: {
     index: true,
@@ -63,6 +64,8 @@ const structuredData = {
       name: 'Hinata Justin Nakamura',
       description,
       author: { '@id': `${canonical}#person` },
+      copyrightHolder: { '@id': `${canonical}#person` },
+      copyrightYear: 2026,
       inLanguage: 'en',
     },
   ],

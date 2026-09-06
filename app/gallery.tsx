@@ -7,23 +7,9 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex, shufflePhotographs } from '@/lib/gallery-collection.mjs';
 import photographs from './archive.json';
+import { categories, categoryHref, type Category } from './categories';
 
 const BASE_PATH = '/photography';
-
-const categories = [
-  'All work',
-  'People & Street',
-  'Buildings & Structures',
-  'Trains & Stations',
-  'Cars, Buses & Planes',
-  'Boats & Harbours',
-  'Coast & Water',
-  'Hills & Countryside',
-  'Flowers & Wildlife',
-  'Objects & Details',
-  'Night & Light',
-] as const;
-type Category = typeof categories[number];
 type Colour = 'all' | 'colour' | 'monochrome';
 type Format = 'all' | 'portrait' | 'landscape';
 type Photograph = {
@@ -48,8 +34,8 @@ function captureDate(value: string | null) {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
 }
 
-export default function Gallery() {
-  const [category, setCategory] = useState<Category>('All work');
+export default function Gallery({ initialCategory = 'All work' }: { initialCategory?: Category }) {
+  const category = initialCategory;
   const [colour, setColour] = useState<Colour>('all');
   const [format, setFormat] = useState<Format>('all');
   const [page, setPage] = useState(0);
@@ -114,7 +100,7 @@ export default function Gallery() {
     <h3 ref={heading} tabIndex={-1} className="archive-heading">Photographs</h3>
     <div className="gallery-toolbar archive-toolbar">
       <div className="gallery-filters" role="group" aria-label="Filter photographs by subject">
-        {categories.map(item => <Button key={item} variant="ghost" className="filter-button" aria-pressed={category === item} onClick={() => { setCategory(item); resetCollection(); }}>{item}</Button>)}
+        {categories.map(item => <a key={item} className="filter-button" aria-current={category === item ? 'page' : undefined} href={categoryHref(item, BASE_PATH)}>{item}</a>)}
       </div>
       <div className="gallery-refinements">
         <label className="colour-filter"><span className="sr-only">Photograph colour treatment</span><NativeSelect value={colour} onChange={event => { setColour(event.target.value as Colour); resetCollection(); }}>
@@ -177,7 +163,7 @@ export default function Gallery() {
           </dl>
           <div className="viewer-panel-footer">
             <a className="original-link" href={fullSource(current)} target="_blank" rel="noreferrer">Open original <ArrowUpRight size={12} /></a>
-            <span>Use arrow keys or swipe to explore</span>
+            <span>© Hinata Justin Nakamura · All rights reserved.<br />Use arrow keys or swipe to explore</span>
           </div>
         </aside>
       </div>

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { ArrowLeft, ArrowRight, ArrowUpRight, Maximize2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select';
@@ -46,6 +46,10 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   const [orderedPhotographs, setOrderedPhotographs] = useState<Photograph[]>(archive);
   const heading = useRef<HTMLHeadingElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
+  useLayoutEffect(() => {
+    if ('scrollRestoration' in window.history) window.history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+  }, []);
   useEffect(() => {
     setOrderedPhotographs(shufflePhotographs(archive));
   }, []);

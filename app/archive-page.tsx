@@ -8,7 +8,7 @@ const instagram = 'https://www.instagram.com/hj_nakamura/';
 
 export default function ArchivePage({ initialCategory = 'All work' }: { initialCategory?: Category }) {
   const total = initialCategory === 'All work'
-    ? photographs.length
+    ? photographs.filter(photograph => photograph.category !== 'School').length
     : photographs.filter(photograph => photograph.category === initialCategory).length;
 
   return (

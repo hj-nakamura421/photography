@@ -1,5 +1,6 @@
 export const categories = [
   'All work',
+  'School',
   'People & Street',
   'Buildings & Structures',
   'Trains & Stations',
@@ -16,6 +17,7 @@ export type Category = typeof categories[number];
 
 export const categorySlugs: Record<Category, string> = {
   'All work': '',
+  'School': 'school',
   'People & Street': 'people-street',
   'Buildings & Structures': 'buildings-structures',
   'Trains & Stations': 'trains-stations',

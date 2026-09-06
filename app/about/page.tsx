@@ -7,6 +7,7 @@ export const dynamic = 'force-static';
 export const metadata: Metadata = {
   title: 'About / Contact — Hinata Justin Nakamura',
   description: 'About and contact details for photographer Hinata Justin Nakamura.',
+  alternates: { canonical: 'https://hj-nakamura421.github.io/photography/about/' },
 };
 
 export default function About() {

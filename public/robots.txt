@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://hj-nakamura421.github.io/photography/sitemap.xml

@@ -11,6 +11,7 @@ export const metadata: Metadata = {
   keywords: ['Hinata Justin Nakamura', 'photographer', 'street photography', 'landscape photography', 'documentary photography', 'London', 'Edinburgh', 'Tokyo'],
   authors: [{ name: 'Hinata Justin Nakamura', url: canonical }],
   creator: 'Hinata Justin Nakamura',
+  verification: { google: 'RL0YaVjCx0_iq_QxJW-zA4M4eOWZ3goMxx6tJm691qI' },
   other: { copyright: '© 2026 Hinata Justin Nakamura. All rights reserved.' },
   alternates: { canonical },
   robots: {

@@ -81,12 +81,11 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
       <DialogTrigger
         render={<Button variant="ghost" className="photo-button" />}
         onClick={() => { setIndex(absoluteIndex); setLoaded(false); setImageFailed(false); }}
-        aria-label={photo.title ? 'View ' + photo.title + ' full screen' : 'View school photograph full screen'}
+        aria-label={`View photograph ${photo.number} full screen`}
       >
         <img src={BASE_PATH + '/archive/' + photo.id + '-thumb.webp'} alt={photo.alt} width={photo.width} height={photo.height} loading={position < 3 ? 'eager' : 'lazy'} fetchPriority={position === 0 ? 'high' : 'auto'} decoding="async" />
         <span className="photo-open" aria-hidden="true"><Maximize2 size={16} /></span>
       </DialogTrigger>
-      {photo.category !== 'School' && <figcaption><span>{photo.title}</span><span>{photo.category}</span></figcaption>}
     </figure>;
   }
 
@@ -155,10 +154,8 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
           <Button variant="ghost" className="viewer-button viewer-step viewer-next" onClick={() => move(1)} aria-label="Next photograph"><ArrowRight size={24} /></Button>
         </div>
         <aside className="viewer-panel" aria-live="polite">
-          <div className="viewer-caption">
-            <DialogTitle className={current.title ? undefined : 'sr-only'}>{current.title || 'School photograph'}</DialogTitle>
-            <DialogDescription>{current.alt}</DialogDescription>
-          </div>
+          <DialogTitle className="sr-only">Photograph {current.number}</DialogTitle>
+          <DialogDescription className="sr-only">{current.alt}</DialogDescription>
           <dl className="viewer-metadata">
             <div><dt>Taken</dt><dd>{captureDate(current.date)}</dd></div>
             <div><dt>Location</dt><dd>{current.location ?? 'Not recorded'}</dd></div>

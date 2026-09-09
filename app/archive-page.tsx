@@ -8,7 +8,7 @@ const instagram = 'https://www.instagram.com/hj_nakamura/';
 
 export default function ArchivePage({ initialCategory = 'All work' }: { initialCategory?: Category }) {
   const total = initialCategory === 'All work'
-    ? photographs.filter(photograph => photograph.category !== 'School').length
+    ? photographs.filter(photograph => photograph.category !== 'School' && photograph.category !== '25').length
     : photographs.filter(photograph => photograph.category === initialCategory).length;
 
   return (
@@ -24,7 +24,7 @@ export default function ArchivePage({ initialCategory = 'All work' }: { initialC
           <Gallery initialCategory={initialCategory} />
         </section>
       </main>
-      <footer><span>© 2026 Hinata Justin Nakamura. All rights reserved.</span><a href={`${basePath}/about`}>About / Contact</a><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={11} /></a><a href="#top">Top ↑</a></footer>
+      <footer><span>© 2026 Hinata Justin Nakamura. All rights reserved.</span><a href={`${basePath}/about`}>About</a><a href={instagram} target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={11} /></a><a href="#top">Top ↑</a></footer>
     </div>
   );
 }

@@ -28,6 +28,19 @@ type Photograph = {
 };
 
 const archive = photographs as Photograph[];
+const matryoshkaOrder = [
+  '86e1430b9e71144a-0314',
+  '799b8932b70ccfce-0158',
+  '5f67cdef858d0df4-0905',
+  '7b74b53525a51a8c-0934',
+  '1a1bdb555cc210d6-0540',
+];
+
+function orderArchive(category: Category) {
+  if (category !== 'Матрёшка') return archive;
+  const positions = new Map(matryoshkaOrder.map((id, index) => [id, index]));
+  return [...archive].sort((left, right) => (positions.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(right.id) ?? Number.MAX_SAFE_INTEGER));
+}
 
 function captureDate(value: string | null) {
   if (!value) return 'Not recorded';
@@ -43,7 +56,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   const [index, setIndex] = useState(0);
   const [loaded, setLoaded] = useState(false);
   const [imageFailed, setImageFailed] = useState(false);
-  const [orderedPhotographs, setOrderedPhotographs] = useState<Photograph[]>(archive);
+  const [orderedPhotographs, setOrderedPhotographs] = useState<Photograph[]>(() => orderArchive(category));
   const heading = useRef<HTMLHeadingElement>(null);
   const touchStart = useRef<{ x: number; y: number } | null>(null);
   useLayoutEffect(() => {
@@ -51,8 +64,8 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
     window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
-    setOrderedPhotographs(shufflePhotographs(archive));
-  }, []);
+    setOrderedPhotographs(category === 'Матрёшка' ? orderArchive(category) : shufflePhotographs(archive));
+  }, [category]);
   const filtered = useMemo(() => filterPhotographs(orderedPhotographs, colour, format, category), [orderedPhotographs, category, colour, format]);
   const pages = pageCountFor(filtered.length);
   const shown = photographPage(filtered, page);

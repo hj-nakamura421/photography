@@ -44,7 +44,14 @@ export default function LocationExplorer({ basePath }: { basePath: string }) {
     let map: import('leaflet').Map | null = null;
     void import('leaflet').then(L => {
       if (disposed || !mapElement.current) return;
-      map = L.map(mapElement.current, { scrollWheelZoom: false, minZoom: 2, worldCopyJump: true }).setView([43, 15], 2);
+      map = L.map(mapElement.current, {
+        scrollWheelZoom: true,
+        touchZoom: true,
+        zoomSnap: 0.25,
+        wheelPxPerZoomLevel: 80,
+        minZoom: 2,
+        worldCopyJump: true,
+      }).setView([43, 15], 2);
       mapInstance.current = map;
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
         maxZoom: 18,
@@ -53,10 +60,10 @@ export default function LocationExplorer({ basePath }: { basePath: string }) {
       for (const group of groups) {
         const marker = L.circleMarker(group.coordinates, {
           radius: Math.min(15, 5 + Math.sqrt(group.photographs.length) * 0.7),
-          color: '#f6f4ef',
-          weight: 2,
-          fillColor: '#59604b',
-          fillOpacity: 0.94,
+          color: '#fff8f0',
+          weight: 2.5,
+          fillColor: '#c43d2f',
+          fillOpacity: 0.96,
         }).addTo(map);
         marker.bindTooltip(`${group.location} · ${group.photographs.length}`, { direction: 'top', offset: [0, -5] });
         marker.on('click', () => setSelected(group.location));
@@ -82,7 +89,7 @@ export default function LocationExplorer({ basePath }: { basePath: string }) {
       <div className="location-explorer">
         <div className="location-map-wrap">
           <div ref={mapElement} className="location-map" aria-label="Map of photographed locations" />
-          <p className="map-note">Marker size reflects the number of photographs. Use the location list for keyboard navigation.</p>
+          <p className="map-note">Pinch or use two fingers to zoom. Marker size reflects the number of photographs.</p>
         </div>
         <nav className="location-list" aria-label="Photographed locations">
           {groups.map(group => (

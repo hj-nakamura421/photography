@@ -14,6 +14,7 @@ export const locationCoordinates: Record<string, [number, number]> = {
   'Danderhall, Scotland': [55.913, -3.111],
   'Derry, Northern Ireland': [54.9966, -7.3086],
   'Dover, England': [51.1279, 1.3134],
+  'Dollar, Scotland': [56.162, -3.676],
   'Dunbar, Scotland': [56.002, -2.516],
   'East Linton, Scotland': [55.987, -2.656],
   'East Fortune, Scotland': [55.995, -2.724],

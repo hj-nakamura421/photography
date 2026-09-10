@@ -33,6 +33,7 @@ export default function SiteSidebar({
       <nav className="sidebar-nav" aria-label="Portfolio navigation">
         <div className="sidebar-group">
           <span className="sidebar-label">Work</span>
+          {categoryLink('All work')}
           {categoryLink('School')}
           <a className="sidebar-link" href={`${basePath}/locations`} aria-current={currentPage === 'locations' ? 'page' : undefined}>Locations</a>
         </div>

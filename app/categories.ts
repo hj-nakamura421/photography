@@ -20,7 +20,7 @@ export type Category = typeof categories[number];
 export type PortfolioView = Category | 'Selected work';
 
 export const categorySlugs: Record<Category, string> = {
-  'All work': '',
+  'All work': 'all-work',
   'School': 'school',
   'Матрёшка': 'matryoshka',
   '25': '25',
@@ -38,9 +38,9 @@ export const categorySlugs: Record<Category, string> = {
 };
 
 export const categoriesBySlug = Object.fromEntries(
-  categories.filter(category => category !== 'All work').map(category => [categorySlugs[category], category]),
-) as Record<string, Exclude<Category, 'All work'>>;
+  categories.map(category => [categorySlugs[category], category]),
+) as Record<string, Category>;
 
 export function categoryHref(category: Category, basePath: string) {
-  return category === 'All work' ? `${basePath}/` : `${basePath}/category/${categorySlugs[category]}`;
+  return `${basePath}/category/${categorySlugs[category]}`;
 }

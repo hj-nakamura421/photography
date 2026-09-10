@@ -6,6 +6,7 @@ import SiteSidebar from './site-sidebar';
 const basePath = '/photography';
 
 export default function ArchivePage({ initialCategory = 'All work' }: { initialCategory?: PortfolioView }) {
+  const isSelectedWork = initialCategory === 'Selected work';
   const total = initialCategory === 'Selected work'
     ? photographs.filter(photograph => photograph.selected).length
     : initialCategory === 'All work'
@@ -17,10 +18,10 @@ export default function ArchivePage({ initialCategory = 'All work' }: { initialC
     <div id="top" className="site-shell">
       <a className="skip-link" href="#work">Skip to photographs</a>
       <SiteSidebar basePath={basePath} currentCategory={currentCategory} />
-      <div className="site-main-shell">
+      <div className={`site-main-shell ${isSelectedWork ? 'selected-work-shell' : ''}`}>
         <main>
-          <section id="work" className="work-section" aria-labelledby="work-title">
-            <div className="section-bar"><h2 id="work-title">{initialCategory}</h2><span>{total.toLocaleString('en-GB')} photographs</span></div>
+          <section id="work" className={`work-section ${isSelectedWork ? 'selected-work-section' : ''}`} aria-labelledby="work-title">
+            <div className={`section-bar ${isSelectedWork ? 'selected-work-bar' : ''}`}><h2 id="work-title">{initialCategory}</h2><span>{total.toLocaleString('en-GB')} photographs</span></div>
             <Gallery initialCategory={initialCategory} />
           </section>
         </main>

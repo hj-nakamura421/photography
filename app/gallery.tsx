@@ -8,6 +8,7 @@ import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, Dia
 import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex, shufflePhotographs } from '@/lib/gallery-collection.mjs';
 import photographs from './archive.json';
 import type { Category } from './categories';
+import TwentyFiveLoop from './twenty-five-loop';
 
 const BASE_PATH = '/photography';
 type Colour = 'all' | 'colour' | 'monochrome';
@@ -28,6 +29,9 @@ type Photograph = {
 };
 
 const archive = photographs as Photograph[];
+const twentyFivePhotographs = archive
+  .filter(photograph => photograph.category === '25')
+  .sort((left, right) => (left.date ?? '').localeCompare(right.date ?? ''));
 const matryoshkaOrder = [
   '86e1430b9e71144a-0314',
   '799b8932b70ccfce-0158',
@@ -51,6 +55,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   const category = initialCategory;
   const [colour, setColour] = useState<Colour>('all');
   const [format, setFormat] = useState<Format>('all');
+  const [location, setLocation] = useState('all');
   const [page, setPage] = useState(0);
   const [open, setOpen] = useState(false);
   const [index, setIndex] = useState(0);
@@ -66,7 +71,11 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   useEffect(() => {
     setOrderedPhotographs(category === 'Матрёшка' ? orderArchive(category) : shufflePhotographs(archive));
   }, [category]);
-  const filtered = useMemo(() => filterPhotographs(orderedPhotographs, colour, format, category), [orderedPhotographs, category, colour, format]);
+  const locationOptions = useMemo(() => {
+    const values = new Set(filterPhotographs(archive, 'all', 'all', category).map(photo => photo.location ?? 'Not recorded'));
+    return [...values].sort((left, right) => left === 'Not recorded' ? 1 : right === 'Not recorded' ? -1 : left.localeCompare(right));
+  }, [category]);
+  const filtered = useMemo(() => filterPhotographs(orderedPhotographs, colour, format, category).filter(photo => location === 'all' || (photo.location ?? 'Not recorded') === location), [orderedPhotographs, category, colour, format, location]);
   const pages = pageCountFor(filtered.length);
   const shown = photographPage(filtered, page);
   const current = filtered[index] ?? filtered[0];
@@ -126,8 +135,13 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
           <NativeSelectOption value="portrait">Portrait format</NativeSelectOption>
           <NativeSelectOption value="landscape">Landscape format</NativeSelectOption>
         </NativeSelect></label>
+        <label className="location-filter"><span className="sr-only">Photograph location</span><NativeSelect value={location} onChange={event => { setLocation(event.target.value); resetCollection(); }}>
+          <NativeSelectOption value="all">All locations</NativeSelectOption>
+          {locationOptions.map(value => <NativeSelectOption key={value} value={value}>{value}</NativeSelectOption>)}
+        </NativeSelect></label>
       </div>
     </div>
+    {category === '25' && <TwentyFiveLoop photographs={twentyFivePhotographs} sourceBase={`${BASE_PATH}/photos`} />}
     <div className="archive-page-bar">
       <p className="gallery-count" aria-live="polite">{filtered.length ? (page * PAGE_SIZE + 1).toLocaleString('en-GB') + '–' + Math.min((page + 1) * PAGE_SIZE, filtered.length).toLocaleString('en-GB') : '0'} of {filtered.length.toLocaleString('en-GB')} photographs</p>
       {pagination('top')}

@@ -2,8 +2,8 @@ import { ArrowUpRight } from 'lucide-react';
 import { categories, categoryHref, type Category } from './categories';
 
 const instagram = 'https://www.instagram.com/hj_nakamura/';
-const projects: Category[] = ['Матрёшка', '25'];
-const collections = categories.filter(category => category !== 'All work' && !projects.includes(category));
+const projects: Category[] = ['Матрёшка', '25', 'Graffgow'];
+const collections = categories.filter(category => category !== 'All work' && category !== 'School' && !projects.includes(category));
 
 export default function SiteSidebar({
   basePath,
@@ -12,7 +12,7 @@ export default function SiteSidebar({
 }: {
   basePath: string;
   currentCategory?: Category;
-  currentPage?: 'about';
+  currentPage?: 'about' | 'locations';
 }) {
   const categoryLink = (category: Category) => (
     <a
@@ -34,6 +34,8 @@ export default function SiteSidebar({
         <div className="sidebar-group">
           <span className="sidebar-label">Work</span>
           {categoryLink('All work')}
+          {categoryLink('School')}
+          <a className="sidebar-link" href={`${basePath}/locations`} aria-current={currentPage === 'locations' ? 'page' : undefined}>Locations</a>
         </div>
         <div className="sidebar-group">
           <span className="sidebar-label">Projects</span>

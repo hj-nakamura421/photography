@@ -28,6 +28,7 @@ export default function About() {
                   <h3>Projects</h3>
                   <Link href="/photography/category/matryoshka">Матрёшка</Link>
                   <Link href="/photography/category/25">25</Link>
+                  <Link href="/photography/category/graffgow">Graffgow</Link>
                 </div>
               </div>
             </div>

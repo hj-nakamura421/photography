@@ -27,13 +27,12 @@ export default function SiteSidebar({
 
   return (
     <aside className="site-sidebar">
-      <a href={`${basePath}/`} className="wordmark" aria-label="Hinata Justin Nakamura — show all work">
+      <a href={`${basePath}/`} className="wordmark" aria-label="Hinata Justin Nakamura — selected work">
         <h1>Hinata Justin Nakamura</h1>
       </a>
       <nav className="sidebar-nav" aria-label="Portfolio navigation">
         <div className="sidebar-group">
           <span className="sidebar-label">Work</span>
-          {categoryLink('All work')}
           {categoryLink('School')}
           <a className="sidebar-link" href={`${basePath}/locations`} aria-current={currentPage === 'locations' ? 'page' : undefined}>Locations</a>
         </div>

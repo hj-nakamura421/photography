@@ -7,7 +7,8 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex, shufflePhotographs } from '@/lib/gallery-collection.mjs';
 import photographs from './archive.json';
-import type { Category } from './categories';
+import selectedWorkOrder from './selected-work-order.json';
+import type { PortfolioView } from './categories';
 import TwentyFiveLoop from './twenty-five-loop';
 
 const BASE_PATH = '/photography';
@@ -40,9 +41,10 @@ const matryoshkaOrder = [
   '1a1bdb555cc210d6-0540',
 ];
 
-function orderArchive(category: Category) {
-  if (category !== 'Матрёшка') return archive;
-  const positions = new Map(matryoshkaOrder.map((id, index) => [id, index]));
+function orderArchive(category: PortfolioView) {
+  if (category !== 'Матрёшка' && category !== 'Selected work') return archive;
+  const order = category === 'Selected work' ? selectedWorkOrder : matryoshkaOrder;
+  const positions = new Map(order.map((id, index) => [id, index]));
   return [...archive].sort((left, right) => (positions.get(left.id) ?? Number.MAX_SAFE_INTEGER) - (positions.get(right.id) ?? Number.MAX_SAFE_INTEGER));
 }
 
@@ -51,7 +53,7 @@ function captureDate(value: string | null) {
   return new Intl.DateTimeFormat('en-GB', { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(value));
 }
 
-export default function Gallery({ initialCategory = 'All work' }: { initialCategory?: Category }) {
+export default function Gallery({ initialCategory = 'All work' }: { initialCategory?: PortfolioView }) {
   const category = initialCategory;
   const [colour, setColour] = useState<Colour>('all');
   const [format, setFormat] = useState<Format>('all');
@@ -69,15 +71,16 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
     window.scrollTo(0, 0);
   }, []);
   useEffect(() => {
-    setOrderedPhotographs(category === 'Матрёшка' ? orderArchive(category) : shufflePhotographs(archive));
+    setOrderedPhotographs(category === 'Матрёшка' || category === 'Selected work' ? orderArchive(category) : shufflePhotographs(archive));
   }, [category]);
   const locationOptions = useMemo(() => {
     const values = new Set(filterPhotographs(archive, 'all', 'all', category).map(photo => photo.location ?? 'Not recorded'));
     return [...values].sort((left, right) => left === 'Not recorded' ? 1 : right === 'Not recorded' ? -1 : left.localeCompare(right));
   }, [category]);
   const filtered = useMemo(() => filterPhotographs(orderedPhotographs, colour, format, category).filter(photo => location === 'all' || (photo.location ?? 'Not recorded') === location), [orderedPhotographs, category, colour, format, location]);
-  const pages = pageCountFor(filtered.length);
-  const shown = photographPage(filtered, page);
+  const fixedSelection = category === 'Selected work';
+  const pages = fixedSelection ? 1 : pageCountFor(filtered.length);
+  const shown = fixedSelection ? filtered : photographPage(filtered, page);
   const current = filtered[index] ?? filtered[0];
   const fullSource = (photo: Photograph) => BASE_PATH + '/photos/' + photo.id + '.jpg';
   const move = (direction: number) => {
@@ -98,7 +101,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   }
 
   function photoCard(photo: Photograph, position: number) {
-    const absoluteIndex = page * PAGE_SIZE + position;
+    const absoluteIndex = fixedSelection ? position : page * PAGE_SIZE + position;
     return <figure className="photograph" key={photo.id}>
       <DialogTrigger
         render={<Button variant="ghost" className="photo-button" />}
@@ -123,7 +126,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
 
   return <Dialog open={open} onOpenChange={setOpen}>
     <h3 ref={heading} tabIndex={-1} className="archive-heading">Photographs</h3>
-    <div className="gallery-toolbar archive-toolbar">
+    {!fixedSelection && <div className="gallery-toolbar archive-toolbar">
       <div className="gallery-refinements">
         <label className="colour-filter"><span className="sr-only">Photograph colour treatment</span><NativeSelect value={colour} onChange={event => { setColour(event.target.value as Colour); resetCollection(); }}>
           <NativeSelectOption value="all">All palettes</NativeSelectOption>
@@ -140,17 +143,17 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
           {locationOptions.map(value => <NativeSelectOption key={value} value={value}>{value}</NativeSelectOption>)}
         </NativeSelect></label>
       </div>
-    </div>
+    </div>}
     {category === '25' && <TwentyFiveLoop photographs={twentyFivePhotographs} sourceBase={`${BASE_PATH}/photos`} />}
-    <div className="archive-page-bar">
+    {!fixedSelection && <div className="archive-page-bar">
       <p className="gallery-count" aria-live="polite">{filtered.length ? (page * PAGE_SIZE + 1).toLocaleString('en-GB') + '–' + Math.min((page + 1) * PAGE_SIZE, filtered.length).toLocaleString('en-GB') : '0'} of {filtered.length.toLocaleString('en-GB')} photographs</p>
       {pagination('top')}
-    </div>
+    </div>}
     {shown.length ? <div className="collection-grid filtered-grid">{shown.map((photo, position) => photoCard(photo, position))}</div> :
       <div className="archive-empty"><p>No photographs match these filters.</p><Button variant="outline" onClick={() => { setColour('all'); setFormat('all'); resetCollection(); }}>Show all photographs</Button></div>}
-    <div className="gallery-end archive-end">
+    {!fixedSelection && <div className="gallery-end archive-end">
       {pagination('bottom')}
-    </div>
+    </div>}
     {current && <DialogContent className="photo-dialog" showCloseButton={false} onKeyDown={event => {
       if (event.key === 'ArrowRight') { event.preventDefault(); move(1); }
       if (event.key === 'ArrowLeft') { event.preventDefault(); move(-1); }

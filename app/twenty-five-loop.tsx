@@ -9,9 +9,27 @@ type LoopPhotograph = {
   height: number;
 };
 
+function shuffledCycle(photographs: LoopPhotograph[]) {
+  const cycle = [...photographs];
+  for (let index = cycle.length - 1; index > 0; index--) {
+    const swapWith = Math.floor(Math.random() * (index + 1));
+    [cycle[index], cycle[swapWith]] = [cycle[swapWith], cycle[index]];
+  }
+  return cycle;
+}
+
 export default function TwentyFiveLoop({ photographs, sourceBase }: { photographs: LoopPhotograph[]; sourceBase: string }) {
   const [frame, setFrame] = useState(0);
   const [playing, setPlaying] = useState(true);
+  const [sequence, setSequence] = useState(photographs);
+
+  useEffect(() => {
+    const animationFrame = window.requestAnimationFrame(() => {
+      setSequence(Array.from({ length: 10 }, () => shuffledCycle(photographs)).flat());
+      setFrame(0);
+    });
+    return () => window.cancelAnimationFrame(animationFrame);
+  }, [photographs]);
 
   useEffect(() => {
     for (const photograph of photographs) {
@@ -21,14 +39,14 @@ export default function TwentyFiveLoop({ photographs, sourceBase }: { photograph
   }, [photographs, sourceBase]);
 
   useEffect(() => {
-    if (!playing || photographs.length < 2) return;
+    if (!playing || sequence.length < 2) return;
     const interval = window.setInterval(() => {
-      setFrame(current => (current + 1) % photographs.length);
-    }, 100);
+      setFrame(current => (current + 1) % sequence.length);
+    }, 150);
     return () => window.clearInterval(interval);
-  }, [photographs.length, playing]);
+  }, [playing, sequence.length]);
 
-  const photograph = photographs[frame];
+  const photograph = sequence[frame];
   if (!photograph) return null;
 
   return (
@@ -42,7 +60,7 @@ export default function TwentyFiveLoop({ photographs, sourceBase }: { photograph
         />
       </div>
       <figcaption>
-        <span>Loop · 25 frames · 2.5 seconds</span>
+        <span>Loop · 10 shuffled cycles · 37.5 seconds</span>
         <button type="button" onClick={() => setPlaying(value => !value)}>{playing ? 'Pause' : 'Play'}</button>
       </figcaption>
     </figure>

@@ -17,6 +17,7 @@ export const categories = [
 ] as const;
 
 export type Category = typeof categories[number];
+export type PortfolioView = Category | 'Selected work';
 
 export const categorySlugs: Record<Category, string> = {
   'All work': '',

@@ -83,12 +83,15 @@ export default function LocationExplorer({ basePath }: { basePath: string }) {
       }).addTo(map);
       for (const group of groups) {
         const marker = L.circleMarker(group.coordinates, {
-          radius: Math.min(15, 5 + Math.sqrt(group.photographs.length) * 0.7),
-          stroke: false,
+          radius: 3.5,
+          stroke: true,
+          color: '#ffffff',
+          weight: 1.25,
+          opacity: 1,
           fillColor: '#c43d2f',
-          fillOpacity: 0.96,
+          fillOpacity: 1,
         }).addTo(map);
-        marker.bindTooltip(`${group.location} · ${group.photographs.length}`, { direction: 'top', offset: [0, -5] });
+        marker.bindTooltip(`${group.location} · ${group.photographs.length}`, { direction: 'top', offset: [0, -6] });
         marker.on('click', () => {
           setSelected(group.location);
           setIndex(0);

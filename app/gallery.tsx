@@ -40,19 +40,6 @@ const matryoshkaOrder = [
   '7b74b53525a51a8c-0934',
   '1a1bdb555cc210d6-0540',
 ];
-const selectedWorkScenes = [
-  { layout: 'opening', size: 3 },
-  { layout: 'pillars', size: 3 },
-  { layout: 'drift', size: 3 },
-  { layout: 'panorama', size: 3 },
-  { layout: 'verticals', size: 5 },
-  { layout: 'anchor', size: 4 },
-  { layout: 'street', size: 3 },
-  { layout: 'city', size: 6 },
-  { layout: 'coast', size: 5 },
-  { layout: 'transit', size: 5 },
-  { layout: 'finale', size: 2 },
-] as const;
 
 function orderArchive(category: PortfolioView) {
   if (category !== 'Матрёшка' && category !== 'Selected work') return archive;
@@ -128,17 +115,9 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
     </figure>;
   }
 
-  function selectedWorkSequence(photos: Photograph[]) {
-    let cursor = 0;
-    return <div className="selected-work-sequence">
-      {selectedWorkScenes.map((scene, sceneIndex) => {
-        const start = cursor;
-        const scenePhotos = photos.slice(start, start + scene.size);
-        cursor += scene.size;
-        return <div className={`selected-work-scene selected-work-scene--${scene.layout}`} key={`${scene.layout}-${sceneIndex}`}>
-          {scenePhotos.map((photo, position) => photoCard(photo, start + position, `selected-work-slot selected-work-slot-${position + 1}`))}
-        </div>;
-      })}
+  function selectedWorkMosaic(photos: Photograph[]) {
+    return <div className="selected-work-mosaic">
+      {photos.map((photo, position) => photoCard(photo, position, 'selected-work-tile'))}
     </div>;
   }
 
@@ -177,7 +156,7 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
       <p className="gallery-count" aria-live="polite">{filtered.length ? (page * PAGE_SIZE + 1).toLocaleString('en-GB') + '–' + Math.min((page + 1) * PAGE_SIZE, filtered.length).toLocaleString('en-GB') : '0'} of {filtered.length.toLocaleString('en-GB')} photographs</p>
       {pagination('top')}
     </div>}
-    {shown.length ? (fixedSelection ? selectedWorkSequence(shown) : <div className="collection-grid filtered-grid">{shown.map((photo, position) => photoCard(photo, position))}</div>) :
+    {shown.length ? (fixedSelection ? selectedWorkMosaic(shown) : <div className="collection-grid filtered-grid">{shown.map((photo, position) => photoCard(photo, position))}</div>) :
       <div className="archive-empty"><p>No photographs match these filters.</p><Button variant="outline" onClick={() => { setColour('all'); setFormat('all'); resetCollection(); }}>Show all photographs</Button></div>}
     {!fixedSelection && <div className="gallery-end archive-end">
       {pagination('bottom')}

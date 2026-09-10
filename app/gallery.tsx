@@ -7,7 +7,7 @@ import { NativeSelect, NativeSelectOption } from '@/components/ui/native-select'
 import { Dialog, DialogClose, DialogContent, DialogDescription, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { PAGE_SIZE, filterPhotographs, pageCountFor, photographPage, nextPhotographIndex, shufflePhotographs } from '@/lib/gallery-collection.mjs';
 import photographs from './archive.json';
-import { categories, categoryHref, type Category } from './categories';
+import type { Category } from './categories';
 
 const BASE_PATH = '/photography';
 type Colour = 'all' | 'colour' | 'monochrome';
@@ -115,9 +115,6 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
   return <Dialog open={open} onOpenChange={setOpen}>
     <h3 ref={heading} tabIndex={-1} className="archive-heading">Photographs</h3>
     <div className="gallery-toolbar archive-toolbar">
-      <div className="gallery-filters" role="group" aria-label="Filter photographs by subject">
-        {categories.map(item => <a key={item} className="filter-button" aria-current={category === item ? 'page' : undefined} href={categoryHref(item, BASE_PATH)}>{item}</a>)}
-      </div>
       <div className="gallery-refinements">
         <label className="colour-filter"><span className="sr-only">Photograph colour treatment</span><NativeSelect value={colour} onChange={event => { setColour(event.target.value as Colour); resetCollection(); }}>
           <NativeSelectOption value="all">All palettes</NativeSelectOption>
@@ -139,7 +136,6 @@ export default function Gallery({ initialCategory = 'All work' }: { initialCateg
       <div className="archive-empty"><p>No photographs match these filters.</p><Button variant="outline" onClick={() => { setColour('all'); setFormat('all'); resetCollection(); }}>Show all photographs</Button></div>}
     <div className="gallery-end archive-end">
       {pagination('bottom')}
-      <a className="text-link" href="https://www.instagram.com/hj_nakamura/" target="_blank" rel="noreferrer">Instagram <ArrowUpRight size={14} /></a>
     </div>
     {current && <DialogContent className="photo-dialog" showCloseButton={false} onKeyDown={event => {
       if (event.key === 'ArrowRight') { event.preventDefault(); move(1); }

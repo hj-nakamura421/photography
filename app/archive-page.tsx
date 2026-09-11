@@ -20,8 +20,8 @@ export default function ArchivePage({ initialCategory = 'All work' }: { initialC
       <SiteSidebar basePath={basePath} currentCategory={currentCategory} />
       <div className={`site-main-shell ${isSelectedWork ? 'selected-work-shell' : ''}`}>
         <main>
-          <section id="work" className={`work-section ${isSelectedWork ? 'selected-work-section' : ''}`} aria-labelledby="work-title">
-            <div className={`section-bar ${isSelectedWork ? 'selected-work-bar' : ''}`}><h2 id="work-title">{initialCategory}</h2><span>{total.toLocaleString('en-GB')} photographs</span></div>
+          <section id="work" className={`work-section ${isSelectedWork ? 'selected-work-section' : ''}`} aria-labelledby={isSelectedWork ? undefined : 'work-title'} aria-label={isSelectedWork ? 'Selected work' : undefined}>
+            {!isSelectedWork && <div className="section-bar"><h2 id="work-title">{initialCategory}</h2><span>{total.toLocaleString('en-GB')} photographs</span></div>}
             <Gallery initialCategory={initialCategory} />
           </section>
         </main>
